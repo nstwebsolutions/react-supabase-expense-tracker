@@ -1,14 +1,20 @@
-import { Button, Input } from "antd";
 import ThemeProvider from "./theme";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+// Pages
+import HomePage from "./pages/home";
+import LoginPage from "./pages/login";
+import RegisterPage from "./pages/register";
+
 const App = () => {
   return (
     <ThemeProvider>
-      <div className='p-5 font-bold flex flex-col gap-5 w-max'>
-        <h1>Hello World!</h1>
-        <Button>Antd Default Button</Button>
-        <Button type='primary'>Antd Primary Button</Button>
-        <Input placeholder='Antd Input' />
-      </div>
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='/login' element={<LoginPage />} />
+          <Route path='/register' element={<RegisterPage />} />
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
   );
 };
