@@ -14,13 +14,39 @@ const RegisterPage = () => {
         email: values.email,
         password: values.password,
       });
+
       if (signupResponse.error) {
         throw new Error(signupResponse.error.message);
       }
+
+      // If user exists, but session is null, likely emial is already registered but not confirmed
+      if (signupResponse.data.user && !signupResponse.data?.session) {
+        messageApi.info(
+          "An account with this email already exists. Please check your email to verify your account."
+        );
+        return;
+      }
+
+      // get the user id from the response and store other data in the (user_profiles table)
+      const userId = signupResponse.data.user?.id;
+      const userProfilesTableData = {
+        id: userId,
+        name: values.name,
+        profile_pic: "",
+      };
+      const userProfileResponse = await supabaseConfig
+        .from("user_profiles")
+        .insert([userProfilesTableData]);
+      if (userProfileResponse.error) {
+        throw new Error(userProfileResponse.error.message);
+      }
+
       messageApi.success(
         "Registration successful. Please check your email to verify your account"
       );
-      navigate("/login");
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (error: any) {
       messageApi.error(error.message || "Something went wrong");
     } finally {
