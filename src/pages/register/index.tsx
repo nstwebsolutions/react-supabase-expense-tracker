@@ -1,12 +1,35 @@
-import { Form, Input, Button } from "antd";
-import { Link } from "react-router-dom";
+import { Form, Input, Button, message } from "antd";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import supabaseConfig from "../../config/supabase-config";
 
 const RegisterPage = () => {
-  const onFinish = (values: any) => {
-    console.log("Success:", values);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [messageApi, contextHolder] = message.useMessage();
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+      const signupResponse = await supabaseConfig.auth.signUp({
+        email: values.email,
+        password: values.password,
+      });
+      if (signupResponse.error) {
+        throw new Error(signupResponse.error.message);
+      }
+      messageApi.success(
+        "Registration successful. Please check your email to verify your account"
+      );
+      navigate("/login");
+    } catch (error: any) {
+      messageApi.error(error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className='bg-gray-200 h-screen flex justify-center items-center'>
+      {contextHolder}
       <div className='bg-white border border-gray-300 p-5 rounded w-[420px] shadow-sm'>
         <h1 className='text-xl font-bold'>Register</h1>
         <p className='text-sm font-semibold'>
@@ -50,7 +73,14 @@ const RegisterPage = () => {
           >
             <Input.Password placeholder='Password' />
           </Form.Item>
-          <Button className='mb-3' block type='primary' htmlType='submit'>
+          <Button
+            loading={loading}
+            disabled={loading}
+            className='mb-3'
+            block
+            type='primary'
+            htmlType='submit'
+          >
             REGISTER
           </Button>
           <span className='text-sm font-semibold'>
